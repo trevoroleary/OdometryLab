@@ -11,6 +11,7 @@
 package ca.mcgill.ecse211.odometer;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import java.lang.Math;
 
 public class Odometer extends OdometerData implements Runnable {
 
@@ -27,8 +28,10 @@ public class Odometer extends OdometerData implements Runnable {
   private final double WHEEL_RAD;
 
   private double[] position;
-
-
+  
+  private double thetaH;
+  private double theta;
+  
   private static final long ODOMETER_PERIOD = 25; // odometer update period in ms
 
   /**
@@ -68,9 +71,11 @@ public class Odometer extends OdometerData implements Runnable {
   public synchronized static Odometer getOdometer(EV3LargeRegulatedMotor leftMotor,
       EV3LargeRegulatedMotor rightMotor, final double TRACK, final double WHEEL_RAD)
       throws OdometerExceptions {
+	  
     if (odo != null) { // Return existing object
       return odo;
-    } else { // create object and return it
+    } 
+    else { // create object and return it
       odo = new Odometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
       return odo;
     }
@@ -98,17 +103,39 @@ public class Odometer extends OdometerData implements Runnable {
   // run method (required for Thread)
   public void run() {
     long updateStart, updateEnd;
-
+   
     while (true) {
       updateStart = System.currentTimeMillis();
 
+      
+      int oldLeftMotorTachoCount = leftMotorTachoCount;
+      int oldRightMotorTachoCount = rightMotorTachoCount;
+      
+    
+      
       leftMotorTachoCount = leftMotor.getTachoCount();
       rightMotorTachoCount = rightMotor.getTachoCount();
 
+      double thetaL = leftMotorTachoCount - oldLeftMotorTachoCount;
+      double thetaR = rightMotorTachoCount - oldRightMotorTachoCount;
+      
+      double d1 = (WHEEL_RAD*3.14159*thetaL)/180;
+      double d2 = (WHEEL_RAD*3.14159*thetaR)/180;
+      double d = d2 - d1;
+      double theta = d/TRACK;
+      
+      thetaH = thetaH + theta;
+      
+      double dH = (d1 + d2)/2;
+      
+      double dx = dH*Math.sin(thetaH);
+      double dY = dH*Math.cos(thetaH);
+      
+    		  
       // TODO Calculate new robot position based on tachometer counts
       
       // TODO Update odometer values with new calculated values
-      odo.update(0.5, 1.8, 20.1);
+      odo.update(dx, dY, theta*180/3.14159);
 
       // this ensures that the odometer only runs once every period
       updateEnd = System.currentTimeMillis();
