@@ -11,6 +11,7 @@
 package ca.mcgill.ecse211.odometer;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.sensor.EV3ColorSensor;
 import java.lang.Math;
 
 public class Odometer extends OdometerData implements Runnable {
@@ -110,8 +111,8 @@ public class Odometer extends OdometerData implements Runnable {
       
       int oldLeftMotorTachoCount = leftMotorTachoCount;
       int oldRightMotorTachoCount = rightMotorTachoCount;
-      
     
+      
       
       leftMotorTachoCount = leftMotor.getTachoCount();
       rightMotorTachoCount = rightMotor.getTachoCount();
@@ -128,13 +129,9 @@ public class Odometer extends OdometerData implements Runnable {
       
       double dH = (d1 + d2)/2;
       
-      double dx = dH*Math.sin(thetaH);
+      double dx = -dH*Math.sin(thetaH);
       double dY = dH*Math.cos(thetaH);
       
-    		  
-      // TODO Calculate new robot position based on tachometer counts
-      
-      // TODO Update odometer values with new calculated values
       odo.update(dx, dY, theta*180/3.14159);
 
       // this ensures that the odometer only runs once every period

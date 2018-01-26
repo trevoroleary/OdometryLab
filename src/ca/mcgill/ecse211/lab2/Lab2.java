@@ -6,6 +6,7 @@ import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.sensor.EV3ColorSensor;
 
 public class Lab2 {
 
@@ -13,18 +14,26 @@ public class Lab2 {
   private static final EV3LargeRegulatedMotor leftMotor =
       new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
   private static final EV3LargeRegulatedMotor rightMotor =
-      new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+      new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
   private static final TextLCD lcd = LocalEV3.get().getTextLCD();
+  
+  /*
+  private static final EV3ColorSensor Sensor = 
+	  new EV3ColorSensor(LocalEV3.get().getPort("1"));
+  */
   public static final double WHEEL_RAD = 2.15;
-  public static final double TRACK = 10;
+  public static final double TRACK = 9.7;
 
   public static void main(String[] args) throws OdometerExceptions {
 
     int buttonChoice;
 
     // Odometer related objects
+
+    
     Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD); // TODO Complete implementation
-    OdometryCorrection odometryCorrection = new OdometryCorrection(); // TODO Complete
+    
+    OdometryCorrection odometryCorrection = new OdometryCorrection(odometer); // TODO Complete
                                                                       // implementation
     Display odometryDisplay = new Display(lcd); // No need to change
 
