@@ -108,27 +108,53 @@ public class Odometer extends OdometerData implements Runnable {
     while (true) {
       updateStart = System.currentTimeMillis();
 
-      
+      /*
+       * This saves the previous measurements from the motors Tacho
+       * allows the code to calculate changes in the rotation of the wheels per iteration
+       */
       int oldLeftMotorTachoCount = leftMotorTachoCount;
       int oldRightMotorTachoCount = rightMotorTachoCount;
     
       
       
+     /*
+      * This grabs the new Tacho count from both left and right motors
+      * stores them in a separate variable from the old tacho count
+      */
       leftMotorTachoCount = leftMotor.getTachoCount();
       rightMotorTachoCount = rightMotor.getTachoCount();
 
+      /*
+       * Change in motor degree is the difference between the new and old Tacho counts
+       */
       double thetaL = leftMotorTachoCount - oldLeftMotorTachoCount;
       double thetaR = rightMotorTachoCount - oldRightMotorTachoCount;
       
+      
+      /*
+       * the change in displacement of the right and left sides is calculated below
+       */
       double d1 = (WHEEL_RAD*3.14159*thetaL)/180;
       double d2 = (WHEEL_RAD*3.14159*thetaR)/180;
+      
+      /*
+       * theta is used to calculate the change in heading direction
+       * the difference in right and left displacement divided by the difference between the right and left wheels
+       */
       double d = d2 - d1;
       double theta = d/TRACK;
       
+      /*
+       * new heading is calculated by old one plus the change in heading
+       */
       thetaH = thetaH + theta;
       
+      /*
+       * the change in x and why displacements are calculated  here using the change in heading
+       * and the absolute location is updated just below
+       * using the odo.update method
+       */
       double dH = (d1 + d2)/2;
-      
       double dx = -dH*Math.sin(thetaH);
       double dY = dH*Math.cos(thetaH);
       
